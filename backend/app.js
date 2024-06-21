@@ -27,7 +27,7 @@ app.use(
 app.use("/api/tasks", require("./routes/taskRoute"));
 
 app.get("/", (req, res) => {
-  res.send("<h1>Welcome To Our Ecommerce App!!</h1>")
+  res.send("<h1>Welcome To Our Task Manager App!!</h1>")
 })
 
 
