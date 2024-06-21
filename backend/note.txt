@@ -1,13 +1,13 @@
-http://localhost:9001/api/task/addtask
+http://localhost:9001/api/tasks/addtask
 
 {
     "title":"title",
     "description":"desc"
 }
 
-http://localhost:9001/api/task/getalltasks
-http://localhost:9001/api/task/gettask/id
-http://localhost:9001/api/task/updatetask/id
-http://localhost:9001/api/task/deletetask/id
+http://localhost:9001/api/tasks/getalltasks
+http://localhost:9001/api/tasks/gettask/id
+http://localhost:9001/api/tasks/updatetask/id
+http://localhost:9001/api/tasks/deletetask/id
 
 
