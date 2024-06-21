@@ -1,0 +1,13 @@
+http://localhost:9001/api/task/addtask
+
+{
+    "title":"title",
+    "description":"desc"
+}
+
+http://localhost:9001/api/task/getalltasks
+http://localhost:9001/api/task/gettask/id
+http://localhost:9001/api/task/updatetask/id
+http://localhost:9001/api/task/deletetask/id
+
+
