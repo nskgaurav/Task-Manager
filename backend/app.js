@@ -1,37 +1,23 @@
 require("dotenv").config();
 const express = require("express");
-const app = express(); // Corrected initialization
-
-// Database connection
+const app = express();
 const connectToMongo = require("./config/db");
+const cors = require("cors")
 connectToMongo();
-
-// Packages
-const morgan = require("morgan");
-const cookieParser = require("cookie-parser");
-const cors = require("cors");
-
-// Middleware setup
-app.use(morgan("dev"));
-app.use(cookieParser());
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-  })
-);
+app.use(cors())
 
-// Routes
-app.use("/api/tasks", require("./routes/taskRoute"));
-
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome To Our Task Manager App!!</h1>")
-})
+app.use("/api/task", require("./routes/taskRoute"))
 
 
-const port = process.env.PORT || 9000;
-app.listen(port, () => {
-  console.log(`${process.env.DEV_MODE} is listening on port ${port}`);
+app.get("/",(req,res)=>{
+    res.send("End Point Working");
+
+});
+
+
+const port = process.env.PORT || 4000;
+app.listen(port,(req,res)=>{
+console.log(`App running on port no ${port}`);
 });

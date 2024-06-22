@@ -36,7 +36,7 @@ const TaskManager = ({ role }) => {
   const handleShow = () => {
     setIsEditMode(false);
     setSelectedData(null);
-    formik.setValues(initialValues);
+    formik.resetForm();
     setShow(true);
   };
 
@@ -48,7 +48,6 @@ const TaskManager = ({ role }) => {
 
   useEffect(() => {
     getData();
-    // Check if in edit mode and selectedData is available
     if (isEditMode && selectedData) {
       formik.setValues({
         title: selectedData.title,
@@ -57,22 +56,19 @@ const TaskManager = ({ role }) => {
     }
   }, [isEditMode, selectedData]);
 
-  // Get
   const getData = () => {
     server
       .get("/task/getalltasks", {
         headers: {
           "Content-Type": "application/json",
-          // "auth-token": user.authToken,
         },
       })
-      .then(function (response) {
-        console.log("api response", response.data);
+      .then((response) => {
         if (response.status === 200 || response.status === 201) {
           setData(response.data);
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         if (error instanceof AxiosError && error.response?.data?.message)
           toast.error(error.response.data.message);
         else if (error.response?.data?.error) {
@@ -81,7 +77,6 @@ const TaskManager = ({ role }) => {
       });
   };
 
-  // Delete
   const deleteData = (data) => {
     swalalert
       .fire({
@@ -93,11 +88,8 @@ const TaskManager = ({ role }) => {
         cancelButtonColor: "#d33",
         confirmButtonText: "Yes",
         cancelButtonText: "No",
-        confirmButtonClass: "btn btn-success",
-        cancelButtonClass: "btn btn-danger",
-        buttonsStyling: true,
       })
-      .then(function (swalObject) {
+      .then((swalObject) => {
         if (swalObject.isConfirmed) {
           server
             .delete(`/task/deletetask/${data._id}`, {
@@ -105,8 +97,7 @@ const TaskManager = ({ role }) => {
                 "Content-Type": "application/json",
               },
             })
-            .then(function (response) {
-              console.log("api response", response.data);
+            .then((response) => {
               if (response.status === 200 || response.status === 201) {
                 swalalert.fire("Deleted!", "Task has been deleted.", "success");
                 getData();
@@ -118,29 +109,27 @@ const TaskManager = ({ role }) => {
         } else {
           swalalert.fire(
             "Cancelled",
-            "Your imaginary file is safe :)",
+            "Your task is safe :)",
             "error"
           );
         }
-        //success method
       });
   };
 
-  // update news
   const handleUpdate = (values) => {
     server
-      .put(`/task/updatetask/${values._id}`, values, {
+      .put(`/task/updatetask/${selectedData._id}`, values, {
         headers: {
           "Content-Type": "application/json",
         },
       })
-      .then(function (response) {
+      .then((response) => {
         formik.resetForm();
         getData();
         toast.success("Task Updated successfully");
         handleClose();
       })
-      .catch(function (error) {
+      .catch((error) => {
         if (error.response?.data?.message)
           toast.error(error.response.data.message);
         else if (error.response?.data?.error) {
@@ -149,16 +138,15 @@ const TaskManager = ({ role }) => {
       });
   };
 
-  //add
   const formik = useFormik({
-    initialValues: isEditMode ? selectedData : initialValues,
+    initialValues: initialValues,
     validationSchema: Yup.object({
       title: Yup.string().required("Enter a Task title"),
       description: Yup.string().required("Enter a Description"),
     }),
-    onSubmit: (values, action) => {
+    onSubmit: (values) => {
       if (isEditMode) {
-        handleUpdate({ ...values, id: selectedData.id });
+        handleUpdate(values);
       } else {
         server
           .post("/task/addtask", values, {
@@ -166,7 +154,7 @@ const TaskManager = ({ role }) => {
               "Content-Type": "application/json",
             },
           })
-          .then(function (response) {
+          .then((response) => {
             if (response.status === 200 || response.status === 201) {
               toast.success("Task Added successfully");
               formik.resetForm();
@@ -174,7 +162,7 @@ const TaskManager = ({ role }) => {
               getData();
             }
           })
-          .catch(function (error) {
+          .catch((error) => {
             if (error.response?.data?.message)
               toast.error(error.response.data.message);
             else if (error.response?.data?.error) {
@@ -186,105 +174,99 @@ const TaskManager = ({ role }) => {
   });
 
   return (
-    <>
-      <div className="container mt-5">
-        <div className="d-flex position-relative mb-3 justify-content-center ">
-          <h5 className="m-auto text-center">Previous Tasks</h5>
-          <Button variant="contained" color="info" onClick={handleShow}>
-            Add Tasks
-          </Button>
+    <div className="container mt-5">
+      <div className="d-flex position-relative mb-3 justify-content-center ">
+        <h5 className="m-auto text-center">Previous Tasks</h5>
+        <Button variant="contained" color="info" onClick={handleShow}>
+          Add Task
+        </Button>
 
-          <Modal show={show} onHide={handleClose}>
-            <Modal.Header closeButton>
-              <Modal.Title>
-                {isEditMode ? "Edit Task Details" : "Add Task Details"}
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <form onSubmit={formik.handleSubmit}>
-                <div className="form-outline mb-2">
-                  <TextField
-                    name="title"
-                    margin="dense"
-                    type="text"
-                    placeholder="Title"
-                    variant="outlined"
-                    label="Task Title"
-                    value={formik.values.title}
-                    onChange={formik.handleChange}
-                    fullWidth
-                    required
-                  ></TextField>
-                  {formik.errors.title ? (
-                    <p className="text-danger">{formik.errors.title}</p>
-                  ) : null}
-                </div>
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>
+              {isEditMode ? "Edit Task Details" : "Add Task Details"}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <form onSubmit={formik.handleSubmit}>
+              <div className="form-outline mb-2">
+                <TextField
+                  name="title"
+                  margin="dense"
+                  type="text"
+                  placeholder="Title"
+                  variant="outlined"
+                  label="Task Title"
+                  value={formik.values.title}
+                  onChange={formik.handleChange}
+                  fullWidth
+                  required
+                />
+                {formik.errors.title && (
+                  <p className="text-danger">{formik.errors.title}</p>
+                )}
+              </div>
 
-                <div className="form-outline mb-2">
-                  <TextField
-                    name="description" // <-- Check this attribute for the typo
-                    margin="dense"
-                    type="text"
-                    placeholder="Tasks Description"
-                    variant="outlined"
-                    label="Tasks Description"
-                    value={formik.values.description}
-                    onChange={formik.handleChange}
-                    fullWidth
-                    required
-                  />
+              <div className="form-outline mb-2">
+                <TextField
+                  name="description"
+                  margin="dense"
+                  type="text"
+                  placeholder="Task Description"
+                  variant="outlined"
+                  label="Task Description"
+                  value={formik.values.description}
+                  onChange={formik.handleChange}
+                  fullWidth
+                  required
+                />
+                {formik.errors.description && (
+                  <p className="text-danger">{formik.errors.description}</p>
+                )}
+              </div>
 
-                  {formik.errors.description ? (
-                    <p className="text-danger">{formik.errors.description}</p>
-                  ) : null}
-                </div>
-
-                <div className="pt-1 mb-2 ">
-                  <Button variant="contained" type="submit">
-                    {isEditMode ? "Update" : "Add"}
-                  </Button>
-                </div>
-              </form>
-            </Modal.Body>
-          </Modal>
-        </div>
-        <div className="container" style={{ overflow: "scroll" }}>
-          <table className="table table-striped border">
-            <thead>
-              <tr>
-                <th scope="col">Sr. No.</th>
-                <th scope="col">Title</th>
-                <th scope="col">Decription</th>
-                <th scope="col">Update</th>
-                <th scope="col">Delete</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((item, index) => {
-                return (
-                  <tr key={item.id}>
-                    <th scope="row">{index + 1}</th>
-                    <td>{item.title}</td>
-                    <td>{item.description}</td>
-
-                    <td>
-                      <div className="btn btn-info text-white">
-                        <AiFillEdit onClick={() => handleShowEdit(item)} />
-                      </div>
-                    </td>
-                    <td>
-                      <div className="btn btn-danger text-white">
-                        <AiFillDelete onClick={() => deleteData(item)} />
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+              <div className="pt-1 mb-2 ">
+                <Button variant="contained" type="submit">
+                  {isEditMode ? "Update" : "Add"}
+                </Button>
+              </div>
+            </form>
+          </Modal.Body>
+        </Modal>
       </div>
-    </>
+      <div className="container" style={{ overflow: "scroll" }}>
+        <table className="table table-striped border">
+          <thead>
+            <tr>
+              <th scope="col">Sr. No.</th>
+              <th scope="col">Title</th>
+              <th scope="col">Description</th>
+              <th scope="col">Update</th>
+              <th scope="col">Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, index) => (
+              <tr key={item._id}>
+                <th scope="row">{index + 1}</th>
+                <td>{item.title}</td>
+                <td>{item.description}</td>
+                <td>
+                  <Button variant="contained" color="info" onClick={() => handleShowEdit(item)}>
+                    <AiFillEdit />
+                  </Button>
+                </td>
+                <td>
+                  <Button variant="contained" color="error" onClick={() => deleteData(item)}>
+                    <AiFillDelete />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 };
 
